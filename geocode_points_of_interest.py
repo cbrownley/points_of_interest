@@ -4,7 +4,7 @@ from geopy.exc import GeocoderTimedOut
 
 import pandas as pd
 
-google_locator = GoogleV3(api_key="AIzaSyDTjpk83jIE__CRUhdrtx28veVBgbvtoW8")
+google_locator = GoogleV3(api_key="YOUR_API_KEY")
 
 def geocode_address(address, geolocator):
     """Geocode an address using the Google Maps v3 API\nhttps://developers.google.com/maps/documentation/geocoding/"""
@@ -41,7 +41,6 @@ df['state'] = df['address'].apply(lambda address: convert_state_to_two_letter(ad
 
 geo_results = []
 for index, row in df.iterrows():
-    #if index < 4:
     try:
         result = geocode_address(row.loc['address'], google_locator)
         d = {'index': index, 'address_geo': result[0], 'latitude': result[1], 'longitude': result[2]}
@@ -52,7 +51,6 @@ for index, row in df.iterrows():
         print(row)
         continue
 
-# http://pbpython.com/pandas-list-dict.html
 geo = pd.DataFrame(geo_results)
 geo.set_index('index', inplace=True)
 
