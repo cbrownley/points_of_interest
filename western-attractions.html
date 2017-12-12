@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Western Attractions</title>
+
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="shortcut icon" type="image/x-icon" href="favicon.ico" />
+
+    <link href="https://unpkg.com/leaflet@1.2.0/dist/leaflet.css" rel="stylesheet"/>
+    <script src="https://unpkg.com/leaflet@1.2.0/dist/leaflet.js"></script>
+    <script src="https://d3js.org/d3.v3.min.js"></script>
+
+    <style>
+        html, body {
+            margin: 20px;
+        }
+        p {
+            font-size: 10;
+            font-weight: normal;
+        }
+        #westernAttractionsMap {
+            width: 800px;
+            height: 500px;
+        }
+    </style>
+  </head>
+
+  <body>
+    <div id="westernAttractionsMap"></div>
+
+    <script>
+
+        let westernAttractionsMap = L.map('westernAttractionsMap').setView([40.84706,-93.25195], 4);
+
+        L.tileLayer('https://api.mapbox.com/styles/v1/mapbox/light-v9/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoiY2Jyb3dubGV5IiwiYSI6ImNqOGJpY2U5dDB0enMyd3Fsa2o1eWh1b2UifQ.JUt8Gpur83KLEBGj6Rr_IA', {
+            attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://mapbox.com">Mapbox</a>',
+            minZoom: 3,
+            maxZoom: 18,
+            zoomControl: false,
+            id: 'mapbox.streets'
+        }).addTo(westernAttractionsMap);
+
+        d3.json('western_attractions_geocoded.geojson', function(error, westernAttractionsData) {
+
+            let myStyle = {};
+
+            function onEachFeature(feature, layer) {
+                let popupContent = "<p style=color:" + color_state(feature.properties.state) + ";\">" +
+                        (feature.properties.title != null ? capitalizeWords(feature.properties.title) : "") +
+                        "<br>" +
+                        (feature.properties.cost != null ? feature.properties.cost : "") +
+                        "<br>" +
+                        (feature.properties.address_geo != null ? feature.properties.address_geo : "")  +
+                        "<br>" +
+                        (feature.properties.website != null ? "<a href='" + feature.properties.website + "'>" + feature.properties.website + "</a>" : "") + "</p>";
+
+                if (feature.properties && feature.properties.popupContent) {
+                    popupContent += feature.properties.popupContent;
+                }
+
+                layer.bindPopup(popupContent);
+            }
+
+            L.geoJSON(westernAttractionsData, {
+                style: myStyle,
+                onEachFeature: onEachFeature,
+            }).addTo(westernAttractionsMap);
+
+        });
+
+        function capitalizeWords(str) {
+            return str.replace(/\w\S*/g, function(txt) {
+                return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+            });
+        }
+
+        function color_state(state) {
+            switch (state) {
+                case 'AZ': return "Blue";
+                case 'CA': return "Crimson";
+                case 'CO': return "DarkGreen";
+                case 'ID': return "DarkOrange";
+                case 'MT': return "DarkSlateBlue";
+                case 'NM': return "ForestGreen";
+                case 'NV': return "Gold";
+                case 'OR': return "HotPink";
+                case 'UT': return "MediumOrchid";
+                case 'WA': return "YellowGreen";
+                case 'WY': return "Sienna";
+            }
+        }
+
+    </script>
+
+  </body>
+</html>
